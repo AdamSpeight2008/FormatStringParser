@@ -61,30 +61,39 @@
             End While
             Return New Span(fs, SpanKind.FormatString, bx, x, content)
         End Function
+
         Private Function Add_EOT(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Unexpected_EOT, x, x)).Value.ex
         End Function
+
         Private Function Add_CB(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Closing_Brace, x, x + 1)).Value.ex
         End Function
+
         Private Function Add_OB(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Opening_Brace, x, x + 1)).Value.ex
         End Function
+
         Private Function Add_UC(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Error_Unexpected_Char, x, x + 1)).Value.ex
         End Function
+
         Private Function Add_UCB(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Error_Unexpected_Closing_Brace, x, x + 1)).Value.ex
         End Function
+
         Private Function Add_UOB(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Error_Unexpected_Opening_Brace, x, x + 1)).Value.ex
         End Function
+
         Private Function Add_ECB(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Escaped_Closing_Brace, x, x + 2)).Value.ex
         End Function
+
         Private Function Add_EOB(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Escaped_Opening_Brace, x, x + 2)).Value.ex
         End Function
+
         Private Function Parse_ArgHole(fs As String, x As Integer) As Span
             Dim bx = x
             Dim contents As New LinkedList(Of Span)
@@ -124,6 +133,7 @@
             End If
             Return New Span(fs, SpanKind.Error_Arg_Hole, bx, Add_UC(fs, contents, x), contents)
         End Function
+
         Private Function Parse_Arg_Format(fs As String, x As Integer) As Span
             Dim bx = x
             Dim contents As New LinkedList(Of Span)
@@ -155,6 +165,7 @@
             Return New Span(fs, SpanKind.Error_Arg_Format, bx,
                         contents.AddLast(New Span(fs, SpanKind.Error_Arg_Format_Impossible, x, x)).Value.ex, contents)
         End Function
+
         Private Function Parse_Arg_Align(fs As String, x As Integer) As Span
             Dim bx = x
             Dim contents As New LinkedList(Of Span)
@@ -171,6 +182,7 @@
                 Return New Span(fs, SpanKind.Error_Arg_Align, bx, x, contents)
             End If
         End Function
+
         Private Function Parse_Arg_Index(fs As String, x As Integer) As Span
             Dim bx = x
             Dim digits = Parse_Digits(fs, x)
@@ -178,6 +190,7 @@
             If digits.Kind = SpanKind.Empty Then Return New Span(fs, SpanKind.Error_Arg_Index, bx, x, digits)
             Return New Span(fs, SpanKind.Arg_Index, bx, x, digits)
         End Function
+
         Private Function Parse_Whitespace(fs As String, x As Integer) As Span
             Dim bx = x
             Dim c As Char
@@ -191,9 +204,11 @@
             If d = 0 Then Return New Span(fs, SpanKind.Empty, bx, x)
             Return New Span(fs, SpanKind.Whitespace, bx, x)
         End Function
+
         Private Function IsDigit(ch As Char) As Boolean
             Return ("0"c <= ch) AndAlso (ch <= "9"c)
         End Function
+
         Private Function Parse_Digits(fs As String, x As Integer) As Span
             Dim bx = x
             Dim c As Char
@@ -214,32 +229,39 @@
             Public ReadOnly Property ex As Integer
             Public ReadOnly Property Kind As SpanKind
             Public ReadOnly Property Contents As New LinkedList(Of Span)
+
             Friend Sub New(fs As String, Kind As SpanKind, bx As Integer, ex As Integer)
                 Me.fs = fs
                 Me.Kind = Kind
                 Me.bx = bx
                 Me.ex = ex
             End Sub
+
             Friend Sub New(fs As String, Kind As SpanKind, bx As Integer, ex As Integer, s As Span)
                 Me.New(fs, Kind, bx, ex)
                 If s IsNot Nothing Then Me.Contents.AddLast(s)
             End Sub
+
             Friend Sub New(fs As String, Kind As SpanKind, bx As Integer, ex As Integer, c As LinkedList(Of Span))
                 Me.New(fs, Kind, bx, ex)
                 Me.Contents = New LinkedList(Of Span)(c)
             End Sub
+
             Friend Sub New(fs As String, Kind As SpanKind, bx As Integer, ex As Integer, c As LinkedList(Of Span), s As Span)
                 Me.New(fs, Kind, bx, ex, c)
                 If s IsNot Nothing Then Me.Contents.AddLast(s)
             End Sub
+
             Public Overrides Function ToString() As String
                 Return $"({Kind}) [{GetSpanText()}]"
             End Function
+
             Public Function GetSpanText() As String
                 Dim d = ex - bx
                 If d <= 0 Then Return ""
                 Return fs.Substring(bx, d)
             End Function
+
         End Class
 
         Public Enum SpanKind As Integer
