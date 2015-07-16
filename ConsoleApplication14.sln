@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "ConsoleApplication14", "ConsoleApplication14\ConsoleApplication14.vbproj", "{381A609C-9CF6-4029-8E59-1C12592F5375}"
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "FormatStringParser", "FormatStringParser\FormatStringParser.vbproj", "{5D8288CF-AA72-404D-84ED-C76800DAFA1A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{381A609C-9CF6-4029-8E59-1C12592F5375}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{381A609C-9CF6-4029-8E59-1C12592F5375}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{381A609C-9CF6-4029-8E59-1C12592F5375}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{381A609C-9CF6-4029-8E59-1C12592F5375}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D8288CF-AA72-404D-84ED-C76800DAFA1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D8288CF-AA72-404D-84ED-C76800DAFA1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D8288CF-AA72-404D-84ED-C76800DAFA1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D8288CF-AA72-404D-84ED-C76800DAFA1A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
