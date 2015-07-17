@@ -19,11 +19,12 @@
             Dim c As Char
             Dim n As Char?
             Dim x = 0
-            Dim bx = x
+            Dim bx As Int32?
             While x < fs.Length
                 c = fs(x)
                 Select Case c
                     Case "{"c
+                        AddText(fs,content,bx,x)
                         ' Is it an escaped opening brace?
                         n = NextChar(fs, x)
                         If n.HasValue Then
@@ -42,25 +43,29 @@
                         End If
 
                     Case "}"c
+                        AddText(fs,content,bx,x)
                         ' Is it an escaped closing brace?
                         n = NextChar(fs, x)
-                        If n.HasValue Then
-                            ' Possibly
-                            If n.Value = "}"c Then
-                                x = Add_ECB(fs, content, x) ' Escape Closing Brace
-                            Else
-                                x = Add_UCB(fs, content, x)
-                            End If
+                        If n.HasValue AndAlso (n.Value = "}"c) Then
+                            x = Add_ECB(fs, content, x) ' Escape Closing Brace
                         Else
                             x = Add_UCB(fs, content, x)
                         End If
                     Case Else
                         ' Treat as normal text
+                        If bx.HasValue = False Then bx = New Int32?(x)
                         x += 1
                 End Select
             End While
-            Return New Span(fs, SpanKind.FormatString, bx, x, content)
+            Return New Span(fs, SpanKind.FormatString, 0, x, content)
         End Function
+
+        Private Sub AddText(fs As String, ByRef contents As LinkedList(Of Span), ByRef bx As Int32?,x As int32)
+            If bx.HasValue Then
+                contents.AddLast(New Span(fs,SpanKind.Text,bx.Value,x))
+                bx = Nothing
+            End If
+        End Sub
 
         Private Function Add_EOT(fs As String, ByRef content As LinkedList(Of Span), x As Integer) As Integer
             Return content.AddLast(New Span(fs, SpanKind.Unexpected_EOT, x, x)).Value.ex
@@ -139,16 +144,19 @@
             Dim contents As New LinkedList(Of Span)
             x = contents.AddLast(New Span(fs, SpanKind.Colon, bx, x + 1)).Value.ex
             Dim ch As Char
+            Dim tx As Int32? = Nothing
             While True
                 If x >= fs.Length Then Return New Span(fs, SpanKind.Error_Arg_Format, bx, Add_EOT(fs, contents, x), contents) ' Unexpected EOT
                 ch = fs(x)
                 Select Case ch
                     Case "}"c
+                        AddText(fs,contents,tx,x)
                         Dim nc = NextChar(fs, x)
                         If nc.HasValue = False Then Return New Span(fs, SpanKind.Arg_Format, bx, x, contents)
                         If nc.Value <> "}"c Then Return New Span(fs, SpanKind.Arg_Format, bx, x, contents)
                         x = Add_ECB(fs, contents, x) ' Escaped Closing Brace
                     Case "{"c
+                        AddText(fs,contents,tx,x)
                         Dim nc = NextChar(fs, x)
                         If nc.HasValue = False Then Return New Span(fs, SpanKind.Error_Arg_Format, bx, Add_EOT(fs, contents, x), contents)
                         If nc.Value = "{"c Then
@@ -158,7 +166,9 @@
                             x = Add_UOB(fs, contents, x)
                         End If
                     Case Else
-                        x = contents.AddLast(New Span(fs, SpanKind.Text, bx, x + 1)).Value.ex
+                        If tx.HasValue = False Then tx = New Int32?(x)
+                        x += 1
+'                        x = contents.AddLast(New Span(fs, SpanKind.Text, bx, x + 1)).Value.ex
                 End Select
             End While
             ' Unexpectedly reached impossible place
@@ -261,7 +271,6 @@
                 If d <= 0 Then Return ""
                 Return fs.Substring(bx, d)
             End Function
-
         End Class
 
         Public Enum SpanKind As Integer
