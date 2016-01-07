@@ -2,10 +2,35 @@
 
     Sub Main()
         Dim p As New FSD.FormatStringParser
-        Dim fs = "A { 0,-1:x2}bb{1:}"
+        Dim fs = "A { 0,-1:x2}bb{1,aaa}"
         Dim s = p.Parse(fs)
         Colorise(s)
+        Dim Holes = ArgHoles(s).ToArray
+        Dim HoleIndice = ArgIndice(Holes).ToArray
     End Sub
+
+    Public Iterator Function ArgHoles(s As FSD.FormatStringParser.Span) As IEnumerable(Of FSD.FormatStringParser.Span)
+        For Each p In s.Contents
+            If p.Kind = FSD.FormatStringParser.SpanKind.Arg_Hole OrElse
+               p.Kind = FSD.FormatStringParser.SpanKind.Error_Arg_Hole Then
+                Yield p
+            End If
+        Next
+    End Function
+
+    Public Iterator Function ArgIndice(xs As IEnumerable(Of FSD.FormatStringParser.Span)) As IEnumerable(Of Integer?)
+        For Each h In xs
+            If h.Kind <> FSD.FormatStringParser.SpanKind.Error_Arg_Hole AndAlso h.Kind <> FSD.FormatStringParser.SpanKind.Arg_Hole Then Continue For
+            For Each p In h.Contents
+                If p.Kind <> FSD.FormatStringParser.SpanKind.Arg_Index AndAlso p.Kind <> FSD.FormatStringParser.SpanKind.Error_Arg_Index Then Continue For
+                Dim r = p.Contents.FirstOrDefault(Function(x) x.Kind = FSD.FormatStringParser.SpanKind.Digits)
+                If r Is Nothing Then Continue For
+                Dim value As Integer
+                If Integer.TryParse(r.GetSpanText, value) = False Then Continue For
+                Yield value
+            Next
+        Next
+    End Function
 
     Public Sub Colorise(s As FSD.FormatStringParser.Span)
         Select Case s.Kind
@@ -25,8 +50,8 @@
                  FSD.FormatStringParser.SpanKind.Error_Arg_Align,
                  FSD.FormatStringParser.SpanKind.Error_Arg_Hole,
                  FSD.FormatStringParser.SpanKind.Error_Arg_Index
-                Console.BackgroundColor = ConsoleColor.DarkRed
-                Console.ForegroundColor = ConsoleColor.Black
+                Console.BackgroundColor = ConsoleColor.White
+                Console.ForegroundColor = ConsoleColor.red
                 Console.Write(s.GetSpanText)
                 Console.ResetColor()
             Case FSD.FormatStringParser.SpanKind.FormatString,
