@@ -7,7 +7,30 @@
         Colorise(s)
         Dim Holes = ArgHoles(s).ToArray
         Dim HoleIndice = ArgIndice(Holes).ToArray
+        Dim ec = ErrorCount(s)
     End Sub
+
+    Function ErrorCount(s As FSD.FormatStringParser.Span) As Integer?
+        If s?.Kind <> FSD.FormatStringParser.SpanKind.FormatString Then Return Nothing
+        Return s.Contents.Where(Function(x) IsErrorKind(x)).Count
+    End Function
+
+    Public Function IsErrorKind(s As FSD.FormatStringParser.Span) As Boolean
+        Select Case s.Kind
+            Case FSD.FormatStringParser.SpanKind.Error_Arg_Align,
+                 FSD.FormatStringParser.SpanKind.Error_Arg_Format,
+                 FSD.FormatStringParser.SpanKind.Error_Arg_Format_Impossible,
+                 FSD.FormatStringParser.SpanKind.Error_Arg_Hole,
+                 FSD.FormatStringParser.SpanKind.Error_Arg_Index,
+                 FSD.FormatStringParser.SpanKind.Error_FormatString,
+                 FSD.FormatStringParser.SpanKind.Error_Unexpected_Char,
+                 FSD.FormatStringParser.SpanKind.Error_Unexpected_Closing_Brace,
+                 FSD.FormatStringParser.SpanKind.Error_Unexpected_Opening_Brace,
+                 FSD.FormatStringParser.SpanKind.Unexpected_EOT
+                Return True
+        End Select
+        Return False
+    End Function
 
     Public Iterator Function ArgHoles(s As FSD.FormatStringParser.Span) As IEnumerable(Of FSD.FormatStringParser.Span)
         For Each p In s.Contents
