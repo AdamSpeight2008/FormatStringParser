@@ -2,12 +2,13 @@
 
     Sub Main()
         Dim p As New FSD.FormatStringParser
-        Dim fs = "A { 0,-1:x2}bb{1,aaa}"
+        Dim fs = "a: {0,-1:X2}" ' "A { 0,-1:x2}bb{1,aaa}"
         Dim s = p.Parse(fs)
         Colorise(s)
         Dim Holes = ArgHoles(s).ToArray
         Dim HoleIndice = ArgIndice(Holes).ToArray
         Dim ec = ErrorCount(s)
+        Dim f = Flatten(s).ToArray
     End Sub
 
     Function ErrorCount(s As FSD.FormatStringParser.Span) As Integer?
@@ -89,11 +90,29 @@
             Case Else
                 'If s.Contents.Any = False Then
                 Console.ForegroundColor = ConsoleColor.White
-                    Console.Write(s.GetSpanText)
+                Console.Write(s.GetSpanText)
 
                 'End If
         End Select
     End Sub
+
+    Iterator Function Flatten(s As FSD.FormatStringParser.Span) As IEnumerable(Of FSD.FormatStringParser.Span)
+        If s Is Nothing Then Return ' Enumerable.Empty(Of FSD.FormatStringParser.Span)
+        Dim xs As New LinkedList(Of FSD.FormatStringParser.Span)
+        xs.AddFirst(s)
+        While xs.Any
+            Dim xn = xs.First
+            Dim x = xn.Value
+            Yield x
+            xs.RemoveFirst()
+            If x.Contents.Any = False Then Continue While
+            Dim n = x.Contents.Count - 1
+            Dim f = xs.AddFirst(x.Contents(0))
+            For i = 1 To n
+                f = xs.AddAfter(f, x.Contents(i))
+            Next
+        End While
+    End Function
 End Module
 
 
